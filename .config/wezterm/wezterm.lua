@@ -66,8 +66,16 @@ end)
 
 local mux = wezterm.mux
 wezterm.on("gui-startup", function(cmd)
-    local tab, pane, window = mux.spawn_window(cmd or {})
-    window:gui_window():toggle_fullscreen()
+    local tab, pane, window = mux.spawn_window {
+        position = {
+            x = 0,
+            y = 0,
+            origin = "MainScreen",
+        },
+    }
+    local gui = window:gui_window()
+    gui:set_position(0, 0)
+    gui:maximize()
 end)
 
 config.keys = {
