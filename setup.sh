@@ -49,15 +49,28 @@ echo ""
 echo "=== 依存ツールの確認 ==="
 
 check_command() {
-  if command -v "$1" &>/dev/null; then
-    echo "  [OK]   $1"
-  else
-    echo "  [MISSING] $1 がインストールされていません"
+  local name="$1"
+  local app_name="${2:-}"
+
+  if command -v "$name" &>/dev/null; then
+    echo "  [OK]   $name"
+    return
   fi
+
+  if [ -n "$app_name" ]; then
+    local app_path
+    app_path="$(mdfind "kMDItemDisplayName == '$app_name'" 2>/dev/null | head -n 1)"
+    if [ -n "$app_path" ]; then
+      echo "  [OK]   $name ($app_path)"
+      return
+    fi
+  fi
+
+  echo "  [MISSING] $name がインストールされていません"
 }
 
 check_command nvim
-check_command wezterm
+check_command wezterm "WezTerm"
 check_command starship
 
 echo ""
