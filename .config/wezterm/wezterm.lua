@@ -16,6 +16,8 @@ config.window_background_gradient = {
   colors = { "#000000" },
 }
 
+config.color_scheme = 'tokyonight'
+
 config.show_new_tab_button_in_tab_bar = false
 config.show_close_tab_button_in_tabs = false
 
