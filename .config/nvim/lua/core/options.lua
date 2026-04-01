@@ -1,3 +1,6 @@
+-- PATH に ~/.local/bin を追加（cursor-cli の agent コマンド等のため）
+vim.env.PATH = vim.fn.expand("~/.local/bin") .. ":" .. vim.env.PATH
+
 -- ファイル
 vim.putfileenconfig = "utf-8" -- エンコーディングをUTF-8に設定
 vim.opt.swapfile = false -- スワップファイルを作成しない

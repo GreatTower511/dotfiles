@@ -27,6 +27,9 @@ vim.g.mapleader = " "
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
+-- Cursor CLI 連携の有効/無効 (true: 有効, false: 無効)
+vim.g.enable_cursor_cli = true
+
 require("lazy").setup(plugins, opts)
 
 require("core.options")
