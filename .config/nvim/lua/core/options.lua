@@ -4,6 +4,8 @@ vim.env.PATH = vim.fn.expand("~/.local/bin") .. ":" .. vim.env.PATH
 -- ファイル
 vim.putfileenconfig = "utf-8" -- エンコーディングをUTF-8に設定
 vim.opt.swapfile = false -- スワップファイルを作成しない
+-- 外部（エディタ外・CLI 等）でファイルが更新されたら checktime 時に再読込できるようにする
+vim.opt.autoread = true
 -- vim.opt.helping = "ja" -- ヘルプファイルの言語は日本語
 vim.opt.hidden = true -- バッファを切り替える時にファイルを保存しなくてもOKに
 
