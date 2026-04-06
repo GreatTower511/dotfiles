@@ -25,6 +25,7 @@ return {
       "MunifTanjim/nui.nvim",
     },
     opts = {
+      log_level = "warn",
       enable_git_status = true,
       window = {
         position = "left",
