@@ -19,9 +19,22 @@ return {
           border = "rounded",
         },
       })
+      -- プラグインは INFO も多用するが、WARN / ERROR のみ通知する
+      do
+        local levels = vim.log.levels
+        local mod = require("cursorcli.notify")
+        local orig = mod.notify
+        function mod.notify(message, level)
+          level = level or levels.INFO
+          if level < levels.WARN then
+            return
+          end
+          return orig(message, level)
+        end
+      end
     end,
     keys = {
-      { "<C-e>", "<Cmd>CursorCliOpenWithLayout float<CR>", desc = "Cursor CLI (float)" },
+      { "<C-k>", "<Cmd>CursorCliOpenWithLayout float<CR>", desc = "Cursor CLI (float)" },
       { "<C-l>", "<Cmd>CursorCliOpenWithLayout vsplit<CR>", desc = "Cursor CLI (vsplit)" },
       { "<C-,>", "<Cmd>CursorCliOpenWithLayout hsplit<CR>", desc = "Cursor CLI (hsplit)" },
       { "<leader>ac", function() require("cursorcli").close() end, desc = "Close Cursor CLI" },
@@ -37,16 +50,28 @@ return {
           local api, fn = vim.api, vim.fn
           local cursorcli = require("cursorcli")
           local notify = require("cursorcli.notify")
-          local sp, ep = fn.getpos("'<"), fn.getpos("'>")
-          if not sp or not ep or sp[2] == 0 or ep[2] == 0 then
+          -- Visual 中は '< '> が未確定で line=0 になることがあるため v / . を使う
+          local line1, line2
+          local mode = fn.mode()
+          if mode == "v" or mode == "V" or mode == "\22" then
+            local a, b = fn.getpos("v"), fn.getpos(".")
+            line1, line2 = a[2], b[2]
+            if line1 > line2 then
+              line1, line2 = line2, line1
+            end
+          else
+            local sp, ep = fn.getpos("'<"), fn.getpos("'>")
+            line1, line2 = sp[2], ep[2]
+          end
+          if not line1 or not line2 or line1 == 0 or line2 == 0 then
             notify.notify("No visual selection found.", vim.log.levels.WARN)
             return
           end
           -- open() 後はカレントが CLI ターミナルになるため、参照元バッファは先に取る
-          local src_buf = sp[1] ~= 0 and sp[1] or api.nvim_get_current_buf()
+          local src_buf = api.nvim_get_current_buf()
           -- layout 未指定の open() は既存フロートを再利用するため、必ず vsplit を明示する
           cursorcli.open({ layout = "vsplit" })
-          cursorcli.add_selection(sp[2], ep[2], src_buf)
+          cursorcli.add_selection(line1, line2, src_buf)
         end,
         desc = "Add selection to Cursor CLI",
         mode = "x",

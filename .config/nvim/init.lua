@@ -47,8 +47,8 @@ require("mason-lspconfig").setup_handlers {
       capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
     }
   end,
-  ["tsserver"] = function()
-    require("lspconfig").tsserver.setup {
+  ["ts_ls"] = function()
+    require("lspconfig").ts_ls.setup {
       capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
     }
   end,
