@@ -8,6 +8,7 @@ LINKS=(
   ".config/nvim"
   ".config/wezterm"
   ".config/starship.toml"
+  ".serena/serena_config.yml"
 )
 
 create_symlink() {

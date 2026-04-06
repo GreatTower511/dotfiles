@@ -9,6 +9,7 @@
 | Neovim | `.config/nvim/` |
 | WezTerm | `.config/wezterm/` |
 | Starship | `.config/starship.toml` |
+| Serena MCP | `.serena/serena_config.yml` → `~/.serena/serena_config.yml` |
 
 ## セットアップ
 
