@@ -37,22 +37,23 @@ require("core.autocmds")
 require("core.keymaps")
 require("user.ui")
 require("mason").setup()
-require("mason-lspconfig").setup()
-require("mason-lspconfig").setup_handlers {
-  function(server_name)
-    require("lspconfig")[server_name].setup {}
-  end,
-  ["ruby_lsp"] = function()
-    require("lspconfig").ruby_lsp.setup {
-      capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
-    }
-  end,
-  ["ts_ls"] = function()
-    require("lspconfig").ts_ls.setup {
-      capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
-    }
-  end,
-}
+require("mason-lspconfig").setup({
+  handlers = {
+    function(server_name)
+      require("lspconfig")[server_name].setup {}
+    end,
+    ["ruby_lsp"] = function()
+      require("lspconfig").ruby_lsp.setup {
+        capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
+      }
+    end,
+    ["ts_ls"] = function()
+      require("lspconfig").ts_ls.setup {
+        capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
+      }
+    end,
+  },
+})
 
 -- nvim-cmp 設定
 local cmp = require("cmp")
