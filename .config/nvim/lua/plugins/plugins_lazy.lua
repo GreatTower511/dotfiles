@@ -87,8 +87,7 @@ return {
     event = { "BufRead", "BufNewFile", "InsertEnter" },
     build = ":TSUpdate",
     config = function()
-      local configs = require("nvim-treesitter.configs")
-      configs.setup({
+      require("nvim-treesitter").setup({
         ensure_installed = {
           'lua',
           'ruby',
