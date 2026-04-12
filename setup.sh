@@ -9,6 +9,7 @@ LINKS=(
   ".config/wezterm"
   ".config/starship.toml"
   ".serena/serena_config.yml"
+  ".claude/settings.json"
 )
 
 create_symlink() {
