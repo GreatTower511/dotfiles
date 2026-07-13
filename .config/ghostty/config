@@ -1,0 +1,38 @@
+# Ghostty config — cmux はこの設定を読み込みます (ターミナル外観・キーバインド)
+# WezTerm (.config/wezterm/wezterm.lua) からの移行
+
+# --- フォント ---
+# WezTerm と同様、専用の Nerd Font は入れていない。Ghostty はバンドルの
+# "Symbols Nerd Font" を自動フォールバックするため starship のグリフは表示される。
+# 好みのフォントを使う場合は下行のコメントを外す (`ghostty +list-fonts` で確認)。
+# font-family = "JetBrainsMono Nerd Font"
+font-size = 14
+
+# --- 背景 (WezTerm: opacity 0.65 / blur 5) ---
+background-opacity = 0.65
+background-blur = 20
+
+# --- ウィンドウ (WezTerm: window_decorations = "RESIZE") ---
+# タイトルバーを隠しつつリサイズ可能。ウィンドウ枠は cmux が管理する点に注意
+macos-titlebar-style = hidden
+
+# --- カラースキーム (WezTerm: color_scheme = 'tokyonight') ---
+theme = tokyonight
+
+# --- キーバインド (ターミナルレベル) ---
+# WezTerm: CMD+SHIFT++ でフォント拡大
+keybind = cmd+shift+plus=increase_font_size:1
+keybind = cmd+minus=decrease_font_size:1
+# WezTerm: CMD+K で ScrollbackAndViewport クリア
+keybind = cmd+k=clear_screen
+
+# 分割 / ペイン移動 / タブ切替について:
+#   cmux は分割を「ネイティブペイン」として独自管理するため、
+#   下記の分割・ペイン移動・タブ操作は Ghostty ではなく
+#   cmux の Settings (⌘,) 側で設定してください。参考 (WezTerm での対応):
+#     CMD+SHIFT+D   -> 縦分割 (SplitVertical)
+#     CMD+D         -> 横分割 (SplitHorizontal)
+#     CMD+ALT+H/J/K/L -> ペイン移動 (Left/Down/Up/Right)
+#     ALT+H / ALT+L -> 前/次のタブ
+#     CMD+W         -> ペインを閉じる
+#     CTRL+V        -> コピーモード

@@ -6,7 +6,7 @@ CONFIG_DIR="$HOME/.config"
 
 LINKS=(
   ".config/nvim"
-  ".config/wezterm"
+  ".config/ghostty"
   ".config/starship.toml"
   ".serena/serena_config.yml"
   ".claude/settings.json"
@@ -72,7 +72,7 @@ check_command() {
 }
 
 check_command nvim
-check_command wezterm "WezTerm"
+check_command cmux "cmux"
 check_command starship
 
 echo ""

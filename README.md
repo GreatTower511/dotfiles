@@ -7,7 +7,7 @@
 | ツール | パス |
 |---|---|
 | Neovim | `.config/nvim/` |
-| WezTerm | `.config/wezterm/` |
+| cmux (Ghostty) | `.config/ghostty/` |
 | Starship | `.config/starship.toml` |
 | Serena MCP | `.serena/serena_config.yml` → `~/.serena/serena_config.yml` |
 
@@ -23,10 +23,10 @@ cd ~/dotfiles
 
 1. 既存の設定ファイルがあればバックアップ（`*.backup.<timestamp>`）
 2. `~/dotfiles/.config/*` から `~/.config/*` へシンボリックリンクを作成
-3. 必要なツール（nvim, wezterm, starship）のインストール確認
+3. 必要なツール（nvim, cmux, starship）のインストール確認
 
 ## 前提ツール
 
 - [Neovim](https://neovim.io/)
-- [WezTerm](https://wezfurlong.org/wezterm/)
+- [cmux](https://github.com/manaflow-ai/cmux) — `brew tap manaflow-ai/cmux && brew install --cask cmux`
 - [Starship](https://starship.rs/)
