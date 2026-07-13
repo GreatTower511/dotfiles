@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+# greview - Cursor風のインタラクティブgit diffレビュアー
+#
+# 使い方:
+#   greview            # コミットしていない全変更 (staged + unstaged)
+#   greview -s         # stagingエリアの変更のみ
+#   greview <commit>   # 指定コミットとの差分
+#   greview --all      # 全ファイルを通しで表示 (fzfなし)
+
+set -euo pipefail
+
+# ---------- 依存チェック ----------
+if ! command -v delta &>/dev/null; then
+  echo "Error: 'delta' が必要です。以下でインストール:"
+  echo "  brew install git-delta"
+  exit 1
+fi
+
+if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+  echo "Error: gitリポジトリ内で実行してください"
+  exit 1
+fi
+
+# ---------- 引数パース ----------
+MODE="uncommitted"   # uncommitted | staged | commit
+COMMIT=""
+ALL_MODE=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -s|--staged)   MODE="staged"; shift ;;
+    -a|--all)      ALL_MODE=true; shift ;;
+    -h|--help)
+      echo "使い方: greview [-s] [-a] [<commit>]"
+      echo "  -s, --staged   stagingエリアの変更のみ表示"
+      echo "  -a, --all      全diff通しで表示 (fzf不要)"
+      echo "  <commit>       指定コミットとのdiff"
+      exit 0
+      ;;
+    -*) echo "不明なオプション: $1"; exit 1 ;;
+    *)  MODE="commit"; COMMIT="$1"; shift ;;
+  esac
+done
+
+# ---------- diff コマンド決定 ----------
+case "$MODE" in
+  staged)
+    DIFF_CMD="git diff --staged"
+    FILES_CMD="git diff --staged --name-only"
+    LABEL="staged changes"
+    ;;
+  commit)
+    DIFF_CMD="git diff $COMMIT"
+    FILES_CMD="git diff --name-only $COMMIT"
+    LABEL="diff vs $COMMIT"
+    ;;
+  *)
+    DIFF_CMD="git diff HEAD"
+    FILES_CMD="git status --porcelain | awk '{print \$NF}'"
+    LABEL="uncommitted changes"
+    ;;
+esac
+
+# ---------- 変更ファイル一覧取得 ----------
+if [ "$MODE" = "uncommitted" ]; then
+  FILES=$(git status --porcelain | grep -v '^?' | awk '{print $NF}' 2>/dev/null || true)
+else
+  FILES=$(eval "$FILES_CMD" 2>/dev/null || true)
+fi
+
+if [ -z "$FILES" ]; then
+  echo "変更されたファイルがありません ($LABEL)"
+  exit 0
+fi
+
+FILE_COUNT=$(echo "$FILES" | grep -c '.' || true)
+
+# ---------- --all モード: そのまま全部表示 ----------
+if $ALL_MODE || ! command -v fzf &>/dev/null; then
+  if ! command -v fzf &>/dev/null; then
+    echo "ヒント: 'brew install fzf' でインタラクティブ選択が使えます"
+    echo ""
+  fi
+  echo "=== $LABEL ($FILE_COUNT ファイル) ==="
+  eval "$DIFF_CMD" | delta
+  exit 0
+fi
+
+# ---------- fzf インタラクティブモード ----------
+# ファイルごとのdiffプレビューコマンド
+case "$MODE" in
+  staged)
+    PREVIEW_CMD="git diff --staged -- {} | delta --color-only --paging=never --dark 2>/dev/null || echo '(差分なし)'"
+    ;;
+  commit)
+    PREVIEW_CMD="git diff $COMMIT -- {} | delta --color-only --paging=never --dark 2>/dev/null || echo '(差分なし)'"
+    ;;
+  *)
+    PREVIEW_CMD="git diff HEAD -- {} | delta --color-only --paging=never --dark 2>/dev/null || echo '(差分なし)'"
+    ;;
+esac
+
+# ファイルのステータスを色付きで表示
+STATUS_FILES=""
+while IFS= read -r file; do
+  status=$(git status --porcelain -- "$file" 2>/dev/null | head -1 | cut -c1-2 | tr -d ' ')
+  case "$status" in
+    M|MM)  STATUS_FILES+=$'\033[33mM\033[0m '"$file"$'\n' ;;  # 黄: 変更
+    A)     STATUS_FILES+=$'\033[32mA\033[0m '"$file"$'\n' ;;  # 緑: 追加
+    D)     STATUS_FILES+=$'\033[31mD\033[0m '"$file"$'\n' ;;  # 赤: 削除
+    R*)    STATUS_FILES+=$'\033[36mR\033[0m '"$file"$'\n' ;;  # シアン: リネーム
+    *)     STATUS_FILES+="? $file"$'\n' ;;
+  esac
+done <<< "$FILES"
+
+HEADER="$LABEL | $FILE_COUNT ファイル変更
+TAB: 複数選択  CTRL-A: 全選択  ENTER: pagerで全表示  ESC: 終了"
+
+SELECTED=$(echo "$FILES" | fzf \
+  --ansi \
+  --multi \
+  --preview "$PREVIEW_CMD" \
+  --preview-window="right:65%:wrap" \
+  --header="$HEADER" \
+  --bind "ctrl-a:select-all,ctrl-d:deselect-all" \
+  --prompt="ファイル > " \
+  --color="header:italic,header:dim" \
+  2>/dev/null || true)
+
+if [ -z "$SELECTED" ]; then
+  exit 0
+fi
+
+# 選択ファイルのdiffをdeltaで表示
+echo "$SELECTED" | while IFS= read -r file; do
+  case "$MODE" in
+    staged)   git diff --staged -- "$file" ;;
+    commit)   git diff "$COMMIT" -- "$file" ;;
+    *)        git diff HEAD -- "$file" ;;
+  esac
+done | delta
