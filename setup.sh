@@ -11,6 +11,9 @@ LINKS=(
   ".serena/serena_config.yml"
 )
 
+BIN_DIR="$DOTFILES_DIR/bin"
+GIT_DELTA_CONFIG="$DOTFILES_DIR/git/delta.gitconfig"
+
 create_symlink() {
   local src="$DOTFILES_DIR/$1"
   local dest="$HOME/$1"
@@ -46,6 +49,36 @@ for link in "${LINKS[@]}"; do
   create_symlink "$link"
 done
 
+# --- greview: bin/ を PATH に追加 ---
+echo ""
+echo "=== bin/ スクリプトのセットアップ ==="
+
+if [ -d "$BIN_DIR" ]; then
+  chmod +x "$BIN_DIR"/*
+  echo "  [OK]   $BIN_DIR のスクリプトに実行権限を付与"
+  if ! grep -q 'dotfiles/bin' "$HOME/.zshrc" 2>/dev/null; then
+    echo "" >> "$HOME/.zshrc"
+    echo "# dotfiles bin" >> "$HOME/.zshrc"
+    echo 'export PATH="$HOME/dotfiles/bin:$PATH"' >> "$HOME/.zshrc"
+    echo "  [ADDED] dotfiles/bin を PATH に追加 (~/.zshrc)"
+  else
+    echo "  [OK]   dotfiles/bin は既にPATHに追加済み"
+  fi
+fi
+
+# --- git delta 設定のinclude追加 ---
+echo ""
+echo "=== git delta 設定 ==="
+
+if [ -f "$GIT_DELTA_CONFIG" ]; then
+  if ! git config --global --get-all include.path | grep -q "dotfiles/git/delta.gitconfig" 2>/dev/null; then
+    git config --global --add include.path "$GIT_DELTA_CONFIG"
+    echo "  [ADDED] ~/.gitconfig に delta設定をinclude"
+  else
+    echo "  [OK]   delta設定は既にinclude済み"
+  fi
+fi
+
 echo ""
 echo "=== 依存ツールの確認 ==="
 
@@ -73,6 +106,8 @@ check_command() {
 check_command nvim
 check_command wezterm "WezTerm"
 check_command starship
+check_command delta "git-delta (brew install git-delta)"
+check_command fzf "fzf (brew install fzf)"
 
 echo ""
 echo "セットアップ完了!"
