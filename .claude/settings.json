@@ -1,8 +1,55 @@
 {
-  "mcpServers": {
-    "serena": {
-      "command": "serena",
-      "args": ["start-mcp-server", "--context=claude-code", "--project-from-cwd", "--open-web-dashboard", "False"]
-    }
+  "model": "opus[1m]",
+  "enabledPlugins": {
+    "ruby-lsp@claude-plugins-official": true,
+    "vercel@claude-plugins-official": true
+  },
+  "tui": "fullscreen",
+  "theme": "dark",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=\"$HOME/.claude/hooks/user-prompt-submit.local.sh\"; if [ -x \"$f\" ]; then \"$f\"; fi; exit 0",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read|Edit|Write|NotebookEdit|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=\"$HOME/.claude/hooks/guard-secrets-and-apply.sh\"; if [ -x \"$f\" ]; then exec \"$f\"; fi; exit 0",
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "deny": [
+      "Bash(terraform apply*)",
+      "Bash(terraform destroy*)",
+      "Edit(**/*.tfvars)",
+      "Edit(**/*.tfvars.json)",
+      "Read(**/*.pem)",
+      "Read(**/*.tfplan)",
+      "Read(**/*.tfstate)",
+      "Read(**/*.tfstate.backup)",
+      "Read(**/*.tfvars)",
+      "Read(**/*.tfvars.json)",
+      "Read(**/*_subscription_env.sh)",
+      "Read(**/.env)",
+      "Read(**/.env.*.local)",
+      "Read(**/.env.local)",
+      "Read(**/.env.production)",
+      "Read(**/master.key)"
+    ]
   }
 }
