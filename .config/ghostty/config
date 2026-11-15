@@ -9,7 +9,7 @@
 font-size = 14
 
 # --- 背景 (WezTerm: opacity 0.65 / blur 5) ---
-background-opacity = 0.5
+background-opacity = 0.8
 background-blur = 20
 
 # --- ウィンドウ (WezTerm: window_decorations = "RESIZE") ---
@@ -25,6 +25,9 @@ keybind = cmd+shift+plus=increase_font_size:1
 keybind = cmd+minus=decrease_font_size:1
 # WezTerm: CMD+K で ScrollbackAndViewport クリア
 keybind = cmd+k=clear_screen
+# Codex CLI の組み込み改行キー Ctrl+J (LF) を Shift+Enter で送る。
+# 端末ごとの modified Enter / CSI 解釈差に依存しないため、更新後も安定する。
+keybind = shift+enter=text:\n
 
 # 分割 / ペイン移動 / タブ切替について:
 #   cmux は分割を「ネイティブペイン」として独自管理するため、
