@@ -33,6 +33,10 @@
     ]
   },
   "permissions": {
+    "allow": [
+      "Bash(gh api repos/Nitoel/*/pulls/*/reviews*)",
+      "Bash(gh pr review *)"
+    ],
     "deny": [
       "Bash(terraform apply*)",
       "Bash(terraform destroy*)",
