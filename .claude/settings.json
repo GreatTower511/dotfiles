@@ -30,6 +30,17 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=\"$HOME/.claude/hooks/check-japanese-reply.py\"; if [ -x \"$f\" ]; then exec \"$f\"; fi; exit 0",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   },
   "permissions": {
